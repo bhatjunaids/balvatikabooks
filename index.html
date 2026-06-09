@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitab Vitran — Balvatika Distribution Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F4F1;
+    --surface:#FFFFFF;
+    --ink:#1A2233;
+    --ink-soft:#5B6472;
+    --ink-faint:#8A919E;
+    --spine:#0E7A6E;
+    --spine-deep:#0A5C53;
+    --red:#C13B3B;
+    --amber:#C98A1A;
+    --green:#2F855A;
+    --blue:#2563A8;
+    --line:#E5E3DC;
+    --line-soft:#EFEEE9;
+    --shadow:0 1px 2px rgba(26,34,51,.05), 0 8px 24px rgba(26,34,51,.05);
+    --serif:"Fraunces",Georgia,"Times New Roman",serif;
+    --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:14px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:0 24px 80px}
+
+  /* ---------- Masthead ---------- */
+  .masthead{
+    display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+    gap:24px;padding:34px 0 22px;border-bottom:1px solid var(--line);
+  }
+  .brand-eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--spine-deep);font-weight:600;margin:0 0 6px;
+  }
+  .brand-title{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1;letter-spacing:-.01em;margin:0;color:var(--ink)}
+  .brand-sub{margin:8px 0 0;color:var(--ink-soft);font-size:13.5px;max-width:46ch}
+  .chips{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:104px;
+    box-shadow:var(--shadow);
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+  .chip .v{font-family:var(--mono);font-size:21px;font-weight:600;color:var(--ink);margin-top:2px;line-height:1}
+  .chip .v.spine{color:var(--spine-deep)}
+  .chip .v.red{color:var(--red)}
+  .chip .v.amber{color:var(--amber)}
+
+  /* ---------- Upload bar ---------- */
+  .uploader{
+    margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .drop{
+    display:flex;align-items:center;gap:18px;padding:18px 22px;cursor:pointer;
+    border:2px dashed transparent;border-radius:14px;transition:background .15s,border-color .15s;
+  }
+  .drop:hover{background:#FAFAF8}
+  .drop.over{background:#F0F7F5;border-color:var(--spine)}
+  .drop-ic{
+    width:44px;height:44px;flex:0 0 44px;border-radius:10px;background:#EAF4F1;color:var(--spine-deep);
+    display:grid;place-items:center;
+  }
+  .drop-ic svg{width:22px;height:22px}
+  .drop-txt h3{margin:0;font-size:14.5px;font-weight:600}
+  .drop-txt p{margin:3px 0 0;color:var(--ink-soft);font-size:12.5px}
+  .drop-actions{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .btn{
+    font-family:var(--sans);font-size:13px;font-weight:600;border-radius:9px;padding:9px 15px;cursor:pointer;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink);transition:background .12s,border-color .12s,color .12s;
+    display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  }
+  .btn:hover{background:#F6F5F1}
+  .btn.primary{background:var(--spine);border-color:var(--spine);color:#fff}
+  .btn.primary:hover{background:var(--spine-deep)}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--spine-deep)}
+  .btn.ghost:hover{background:#EAF4F1}
+  .btn:focus-visible,.tab:focus-visible,.fchip:focus-visible{outline:2px solid var(--spine);outline-offset:2px}
+  .btn svg{width:15px;height:15px}
+
+  .match-report{border-top:1px solid var(--line-soft);padding:14px 22px;display:none;font-size:12.5px}
+  .match-report.show{display:block}
+  .mr-row{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+  .mr-stat{display:flex;align-items:baseline;gap:7px}
+  .mr-stat b{font-family:var(--mono);font-size:15px}
+  .mr-stat span{color:var(--ink-soft)}
+  .mr-good{color:var(--green)}.mr-warn{color:var(--amber)}.mr-bad{color:var(--red)}
+  .mr-unmatched{margin-top:10px;color:var(--ink-soft)}
+  .mr-unmatched .tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+  .tag{background:#FBF3EC;border:1px solid #F0DEC9;color:#9A6A14;border-radius:6px;padding:2px 8px;font-size:11.5px;font-family:var(--mono)}
+
+  /* ---------- Tabs ---------- */
+  .tabs{display:flex;gap:4px;margin:26px 0 0;border-bottom:1px solid var(--line)}
+  .tab{
+    appearance:none;background:none;border:none;font-family:var(--sans);font-size:13.5px;font-weight:600;
+    color:var(--ink-soft);padding:12px 16px;cursor:pointer;position:relative;border-radius:8px 8px 0 0;
+  }
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--ink)}
+  .tab.active::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2.5px;background:var(--spine);border-radius:2px}
+  .tab .badge{font-family:var(--mono);font-size:10px;background:var(--red);color:#fff;border-radius:20px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+  .panel{display:none;padding-top:24px}
+  .panel.active{display:block}
+
+  /* ---------- Hero shelf (overall fill) ---------- */
+  .hero{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);
+    margin-bottom:20px;
+  }
+  .hero-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:14px}
+  .hero-lead{font-family:var(--serif);font-size:15px;color:var(--ink-soft);font-weight:500;margin:0}
+  .hero-big{font-family:var(--mono);font-size:46px;font-weight:600;line-height:.95;color:var(--ink);letter-spacing:-.02em}
+  .hero-big small{font-size:24px;color:var(--ink-soft);font-weight:500;margin-left:4px}
+  .hero-counts{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);text-align:right}
+  .hero-counts b{color:var(--ink)}
+  .shelf{margin-top:18px;height:26px;border-radius:7px;background:#EDEBE4;overflow:hidden;position:relative;display:flex;border:1px solid var(--line)}
+  .shelf-fill{height:100%;background:linear-gradient(90deg,var(--spine),var(--spine-deep));transition:width .9s cubic-bezier(.22,1,.36,1)}
+  .shelf-grid{position:absolute;inset:0;pointer-events:none;display:flex}
+  .shelf-grid span{flex:1;border-right:1px solid rgba(255,255,255,.45)}
+  .shelf-grid span:last-child{border:none}
+
+  /* ---------- Stat grid ---------- */
+  .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
+  .stat .lbl{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:7px}
+  .stat .dot{width:9px;height:9px;border-radius:50%}
+  .stat .num{font-family:var(--mono);font-size:30px;font-weight:600;margin-top:8px;line-height:1}
+  .stat .meta{font-size:11.5px;color:var(--ink-faint);margin-top:4px}
+
+  /* ---------- Controls ---------- */
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:14px}
+  .search{position:relative;flex:1;min-width:220px;max-width:340px}
+  .search input{
+    width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line);border-radius:9px;font-family:var(--sans);
+    font-size:13px;background:var(--surface);color:var(--ink);
+  }
+  .search input:focus{outline:none;border-color:var(--spine);box-shadow:0 0 0 3px rgba(14,122,110,.12)}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ink-faint)}
+  .fchips{display:flex;gap:6px;flex-wrap:wrap}
+  .fchip{
+    font-family:var(--sans);font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink-soft);border-radius:20px;padding:7px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  }
+  .fchip .d{width:8px;height:8px;border-radius:50%}
+  .fchip:hover{border-color:var(--ink-faint)}
+  .fchip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .fchip.active .d{box-shadow:0 0 0 2px rgba(255,255,255,.5)}
+  .spacer{flex:1}
+
+  /* ---------- Table ---------- */
+  .tablewrap{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:auto;max-height:72vh}
+  table{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px}
+  thead th{
+    position:sticky;top:0;z-index:3;background:#FBFAF7;color:var(--ink-soft);font-weight:600;text-align:right;
+    padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:11px;letter-spacing:.02em;cursor:pointer;
+    user-select:none;
+  }
+  thead th .arrow{opacity:.35;font-size:9px;margin-left:3px}
+  thead th.sorted .arrow{opacity:1;color:var(--spine-deep)}
+  thead th.col-dist{text-align:left;left:0;z-index:4;min-width:160px}
+  thead th.col-over{text-align:left}
+  td{padding:9px 10px;border-bottom:1px solid var(--line-soft);text-align:right;font-family:var(--mono);white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td.col-dist{
+    text-align:left;font-family:var(--sans);font-weight:600;position:sticky;left:0;background:var(--surface);z-index:2;
+    font-size:12.5px;
+  }
+  tbody tr:hover td{background:#FAFAF7}
+  tbody tr:hover td.col-dist{background:#F3F2EC}
+  .sn{font-family:var(--mono);color:var(--ink-faint);font-size:10.5px;margin-right:7px;font-weight:400}
+  .hcell{border-radius:6px;font-weight:600;display:block;text-align:center;padding:5px 4px;line-height:1.15;font-size:12.5px;min-width:62px}
+  .hcell .hsub{display:block;font-family:var(--mono);font-size:10px;font-weight:500;opacity:.82;margin-top:1px}
+  .hcell.empty{background:#EDEBE4;color:var(--ink-faint);font-weight:500}
+  .band-green{background:#E7F3EC;color:#1F6B43}
+  .band-yellow{background:#FBF1DC;color:#8A5A0E}
+  .band-red{background:#FBE3E3;color:#A12C2C}
+  .band-zero{background:#F4DADA;color:#8E2020}
+  td.col-title{padding:5px}
+  tbody tr.clk{cursor:pointer}
+  .dchev{color:var(--ink-faint);font-size:11px;margin-left:6px;opacity:0;transition:opacity .12s}
+  tbody tr:hover .dchev{opacity:1}
+  .overcell{display:flex;align-items:center;gap:9px;justify-content:flex-start;min-width:150px}
+  .bar{flex:1;height:9px;border-radius:5px;background:#EDEBE4;overflow:hidden;min-width:64px}
+  .bar > i{display:block;height:100%;border-radius:5px}
+  .overpct{font-family:var(--mono);font-weight:600;min-width:42px;text-align:right}
+  .badge-st{font-family:var(--sans);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-block}
+  .st-reached{background:#E7F3EC;color:#1F6B43}
+  .st-partial{background:#FBF1DC;color:#8A5A0E}
+  .st-low{background:#FBE3E3;color:#A12C2C}
+  .st-stalled{background:#F1D6D6;color:#7A1F1F}
+  .st-noreport{background:#ECEBE6;color:var(--ink-soft)}
+  .empty-state{padding:60px 20px;text-align:center;color:var(--ink-soft)}
+  .empty-state svg{width:40px;height:40px;color:var(--ink-faint);margin-bottom:10px}
+
+  /* ---------- Detail drawer ---------- */
+  .drawer-backdrop{position:fixed;inset:0;background:rgba(26,34,51,.32);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+  .drawer-backdrop.open{opacity:1;pointer-events:auto}
+  .drawer{
+    position:fixed;top:0;right:0;height:100%;width:min(460px,94vw);background:var(--surface);z-index:51;
+    box-shadow:-12px 0 40px rgba(26,34,51,.16);transform:translateX(100%);transition:transform .26s cubic-bezier(.22,1,.36,1);
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .drawer.open{transform:translateX(0)}
+  .dr-head{padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+  .dr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .dr-name{font-family:var(--serif);font-size:24px;font-weight:600;line-height:1.05;margin:0}
+  .dr-close{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--ink-soft);font-size:17px;line-height:1;flex:0 0 32px}
+  .dr-close:hover{background:#F6F5F1}
+  .dr-meta{display:flex;align-items:baseline;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .dr-pct{font-family:var(--mono);font-size:30px;font-weight:600;line-height:1}
+  .dr-sub{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft)}
+  .dr-body{padding:8px 22px 28px;overflow:auto}
+  .dr-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .dr-table th{text-align:right;font-weight:600;font-size:11px;color:var(--ink-soft);padding:9px 6px;border-bottom:1px solid var(--line)}
+  .dr-table th:first-child{text-align:left}
+  .dr-table td{text-align:right;padding:9px 6px;border-bottom:1px solid var(--line-soft);font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .dr-table td:first-child{text-align:left;font-family:var(--sans);font-weight:600}
+  .dr-table tr.tot td{border-top:1px solid var(--line);border-bottom:none;font-weight:700;padding-top:11px}
+  .dr-bar{height:8px;width:84px;border-radius:5px;background:#EDEBE4;overflow:hidden;display:inline-block;vertical-align:middle}
+  .dr-bar>i{display:block;height:100%;border-radius:5px}
+  .dr-chip{display:inline-block;min-width:46px;text-align:center;padding:3px 8px;border-radius:6px;font-weight:600;font-size:11.5px}
+  .dr-note{font-size:12px;color:var(--ink-soft);background:#F6F5F1;border-radius:8px;padding:8px 11px;margin:14px 0 0}
+
+  /* ---------- Analysis ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 4px;font-family:var(--serif);font-weight:600;font-size:17px}
+  .card .sub{margin:0 0 16px;color:var(--ink-soft);font-size:12.5px}
+  .hbars{display:flex;flex-direction:column;gap:9px}
+  .hbar{display:grid;grid-template-columns:120px 1fr 64px;align-items:center;gap:12px;font-size:12px}
+  .hbar .nm{font-weight:600;text-align:right;color:var(--ink)}
+  .hbar .track{height:14px;background:#EDEBE4;border-radius:7px;overflow:hidden}
+  .hbar .track > i{display:block;height:100%;border-radius:7px;transition:width .8s cubic-bezier(.22,1,.36,1)}
+  .hbar .pc{font-family:var(--mono);font-weight:600;text-align:right}
+  .donutwrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+  .legend{display:flex;flex-direction:column;gap:9px;font-size:12.5px}
+  .legend .li{display:flex;align-items:center;gap:9px}
+  .legend .sw{width:11px;height:11px;border-radius:3px}
+  .legend .ct{font-family:var(--mono);font-weight:600;margin-left:auto;padding-left:18px}
+  .distscroll{max-height:520px;overflow:auto;padding-right:6px}
+  .distscroll .hbar{grid-template-columns:148px 1fr 48px}
+  .distscroll .hbar .nm{font-family:var(--sans)}
+
+  /* ---------- Gaps ---------- */
+  .gapsec{margin-bottom:24px}
+  .gaphead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .gaphead .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff}
+  .gaphead h3{margin:0;font-family:var(--serif);font-size:18px;font-weight:600}
+  .gaphead .cnt{font-family:var(--mono);font-size:13px;color:var(--ink-soft);margin-left:4px}
+  .gapgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .gapcard{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:13px 15px;box-shadow:var(--shadow);border-left:3px solid var(--ink-faint)}
+  .gapcard.red{border-left-color:var(--red)}
+  .gapcard.grey{border-left-color:var(--ink-faint)}
+  .gapcard.amber{border-left-color:var(--amber)}
+  .gapcard .gd{font-weight:700;font-size:13.5px}
+  .gapcard .gm{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);margin-top:3px}
+  .gapcard .miss{margin-top:7px;display:flex;flex-wrap:wrap;gap:4px}
+  .gapcard .miss b{font-size:10.5px;font-weight:600;background:#FBE9E2;color:#B05A2A;border-radius:5px;padding:2px 6px;font-family:var(--mono)}
+  .gap-none{color:var(--green);font-size:13px;display:flex;align-items:center;gap:8px;padding:8px 0}
+
+  .footnote{margin-top:30px;color:var(--ink-faint);font-size:11.5px;line-height:1.6;border-top:1px solid var(--line);padding-top:16px}
+  .footnote code{font-family:var(--mono);background:#EDEBE4;padding:1px 5px;border-radius:4px;color:var(--ink-soft)}
+
+  @media (max-width:880px){
+    .statgrid{grid-template-columns:repeat(2,1fr)}
+    .grid2{grid-template-columns:1fr}
+    .brand-title{font-size:30px}
+    .hero-big{font-size:36px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important}
+  }
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Masthead -->
+  <header class="masthead">
+    <div>
+      <p class="brand-eyebrow">Kitab Vitran · NIPUN Bharat</p>
+      <h1 class="brand-title">Balvatika Distribution Tracker</h1>
+      <p class="brand-sub">Target vs. officer-reported receipt of foundational learning material across 75 districts of Uttar Pradesh.</p>
+    </div>
+    <div class="chips" id="topChips">
+      <div class="chip"><div class="k">Districts</div><div class="v">75</div></div>
+      <div class="chip"><div class="k">Titles</div><div class="v">9</div></div>
+      <div class="chip"><div class="k">Books targeted</div><div class="v spine" id="chipTarget">—</div></div>
+    </div>
+  </header>
+
+  <!-- Uploader -->
+  <div class="uploader">
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Upload officer-reported receipt CSV">
+      <div class="drop-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <div class="drop-txt">
+        <h3>Upload officer-reported receipt data</h3>
+        <p>Drop a CSV/XLSX-exported CSV with districts in rows and book titles in columns. Names and headers are matched automatically.</p>
+      </div>
+      <div class="drop-actions">
+        <button class="btn ghost" id="demoBtn" type="button">Load demo data</button>
+        <button class="btn primary" id="browseBtn" type="button">Choose file</button>
+        <input type="file" id="fileInput" accept=".csv,text/csv" style="display:none">
+      </div>
+    </div>
+    <div class="match-report" id="matchReport"></div>
+  </div>
+
+  <!-- Tabs -->
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="recon" role="tab">Reconciliation</button>
+    <button class="tab" data-tab="analysis" role="tab">Analysis</button>
+    <button class="tab" data-tab="gaps" role="tab">Not reached <span class="badge hidden" id="gapBadge">0</span></button>
+  </nav>
+
+  <!-- Reconciliation -->
+  <section class="panel active" id="panel-recon" role="tabpanel">
+    <div class="controls">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchBox" placeholder="Search district…">
+      </div>
+      <div class="fchips" id="filterChips">
+        <button class="fchip active" data-f="all">All</button>
+        <button class="fchip" data-f="reached"><span class="d" style="background:var(--green)"></span>&gt;80%</button>
+        <button class="fchip" data-f="partial"><span class="d" style="background:var(--amber)"></span>50–80%</button>
+        <button class="fchip" data-f="low"><span class="d" style="background:var(--red)"></span>&lt;50%</button>
+        <button class="fchip" data-f="notreached"><span class="d" style="background:#8E2020"></span>Not reached</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" id="exportBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+    </div>
+    <div class="tablewrap" id="tableWrap"></div>
+  </section>
+
+  <!-- Analysis -->
+  <section class="panel" id="panel-analysis" role="tabpanel">
+    <div class="hero" id="hero"></div>
+    <div class="statgrid" id="statgrid"></div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Fill rate by title</h3>
+        <p class="sub">State-wide received as a share of target, per book title.</p>
+        <div class="hbars" id="titleBars"></div>
+      </div>
+      <div class="card">
+        <h3>District status</h3>
+        <p class="sub">How the 75 districts split across delivery stages.</p>
+        <div class="donutwrap">
+          <div id="donut"></div>
+          <div class="legend" id="donutLegend"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Completion by district</h3>
+      <p class="sub">Sorted lowest first — the districts needing follow-up sit at the top.</p>
+      <div class="distscroll"><div class="hbars" id="distBars"></div></div>
+    </div>
+  </section>
+
+  <!-- Gaps -->
+  <section class="panel" id="panel-gaps" role="tabpanel">
+    <div id="gapsBody"></div>
+  </section>
+
+  <p class="footnote">
+    Targets are embedded from the district work-order. Officer receipt data is read from the file you upload — district names and the nine title headers are matched by normalisation plus fuzzy matching, so spelling differences (e.g. <code>Allahabad/Prayagraj</code>, <code>Nipun Talika/Taalika</code>) are reconciled automatically. Any district not present in your file is counted as <b>0 received</b> (not reached). Cell colour follows received share of target: <b>green above 80%</b>, <b>yellow 50–80%</b>, <b>red below 50%</b>. Click any district to open its full title-by-title breakdown. Nothing is stored or sent anywhere — all processing happens in your browser.
+  </p>
+</div>
+
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="District detail">
+  <div class="dr-head">
+    <div class="dr-top">
+      <h2 class="dr-name" id="drName">—</h2>
+      <button class="dr-close" id="drClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="dr-meta">
+      <span class="dr-pct" id="drPct">—</span>
+      <span class="dr-sub" id="drSub"></span>
+    </div>
+  </div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+
+
+<script>
+"use strict";
+
+/* =================== TARGET DATA (from work-order) =================== */
+/* order: Chahak1, Chahak2, Chahak3, Kadam, Kalankur, BigBooks, TG, HPC, Talika */
+const TITLES = [
+  {key:"bb", label:"Big Books", short:"Big Books"},
+  {key:"hpc", label:"Holistic Progress Card", short:"HPC"},
+  {key:"c3", label:"Chahak 3", short:"Chahak 3"},
+  {key:"c2", label:"Chahak 2", short:"Chahak 2"},
+  {key:"c1", label:"Chahak 1", short:"Chahak 1"},
+  {key:"kadam", label:"Kadam", short:"Kadam"},
+  {key:"kalankur", label:"Kalankur", short:"Kalankur"},
+  {key:"talika", label:"Nipun Talika", short:"Nipun Talika"},
+  {key:"tg", label:"Balvatika Hastpustika", short:"Hastpustika"}
+];
+/* Fixed column order of TARGET_ROWS as stored from the work-order CSV */
+const TARGET_COL_ORDER = ["c1","c2","c3","kadam","kalankur","bb","tg","hpc","talika"];
+
+const TARGET_ROWS = [
+["AGRA",22840,15213,10829,10829,48844,11124,927,48880,1854],
+["ALIGARH",25428,16935,12053,12053,54384,11532,961,54414,1922],
+["AMBEDKAR NAGAR",18031,12009,8547,8547,38564,10536,878,38586,1756],
+["AMETHI",13888,9252,6587,6587,29696,8784,732,29726,1464],
+["AMROHA",7173,4779,3403,3403,15336,6264,522,15354,1044],
+["AURAIYA",13695,9122,6493,6493,29288,6120,510,29308,1020],
+["AYODHYA",19791,13257,9436,9436,42566,10824,902,42594,1804],
+["AZAMGARH",25450,16953,12068,12068,54422,12804,1067,54470,2134],
+["BAGHPAT",2815,1877,1338,1338,6012,2424,202,6028,404],
+["BAHRAICH",40971,27285,19416,19416,87639,12288,1024,87671,2048],
+["BALLIA",18188,12117,8626,8626,38890,9804,817,38930,1634],
+["BALRAMPUR",12764,8502,6053,6053,27293,4752,396,27317,792],
+["BANDA",15535,10347,7365,7365,33224,6780,565,33246,1130],
+["BARABANKI",22375,14904,10609,10609,47850,13812,1151,47886,2302],
+["BAREILLY",35902,23910,17016,17016,76791,12300,1025,76827,2050],
+["BASTI",18767,12501,8899,8899,40131,8952,746,40165,1492],
+["BHADOHI",8081,5383,3833,3833,17277,4140,345,17295,690],
+["BIJNOR",13145,8757,6234,6234,28107,12204,1017,28135,2034],
+["BUDAUN",23137,15411,10969,10969,49480,9312,776,49516,1552],
+["BULANDSHAHR",18987,12648,9004,9004,40602,10716,893,40638,1786],
+["CHANDAULI",13001,8660,6165,6165,27803,5928,494,27825,988],
+["CHITRAKOOT",9471,6309,4491,4491,20253,4164,347,20269,694],
+["DEORIA",20237,13481,9596,9596,43275,12132,1011,43313,2022],
+["ETAH",18750,12488,8887,8887,40101,8448,704,40123,1408],
+["ETAWAH",12934,8615,6133,6133,27658,8364,697,27680,1394],
+["FARRUKHABAD",15579,10376,7385,7385,33319,7044,587,33339,1174],
+["FATEHPUR",23759,15825,11263,11263,50813,11028,919,50845,1838],
+["FIROZABAD",15793,10520,7488,7488,33775,9252,771,33799,1542],
+["GAUTAM BUDDHA NAGAR",3389,2259,1609,1609,7243,2844,237,7255,474],
+["GHAZIABAD",1960,1308,933,933,4185,1692,141,4199,282],
+["GHAZIPUR",18077,12042,8573,8573,38653,12192,1016,38691,2032],
+["GONDA",28277,18834,13405,13405,60476,15000,1250,60514,2500],
+["GORAKHPUR",20908,13929,9916,9916,44705,11928,994,44751,1988],
+["HAMIRPUR",9962,6637,4725,4725,21302,5256,438,21322,876],
+["HAPUR",3174,2116,1507,1507,6783,2640,220,6795,440],
+["HARDOI",43184,28760,20468,20468,92364,18036,1503,92410,3006],
+["HATHRAS",12506,8330,5930,5930,26745,6288,524,26765,1048],
+["JALAUN",12787,8518,6063,6063,27345,5844,487,27367,974],
+["JAUNPUR",17771,11840,8431,8431,37993,15444,1287,38041,2574],
+["JHANSI",6650,4431,3156,3156,14213,3492,291,14235,582],
+["KANNAUJ",19814,13196,9392,9392,42379,7824,652,42401,1304],
+["KANPUR DEHAT",25173,16765,11931,11931,53841,11568,964,53867,1928],
+["KANPUR NAGAR",13449,8959,6377,6377,28760,8532,711,28784,1422],
+["KASGANJ",17488,11647,8289,8289,37404,8340,695,37422,1390],
+["KAUSHAMBI",9163,6104,4346,4346,19591,5376,448,19611,896],
+["KHERI",26966,17960,12783,12783,57672,15324,1277,57708,2554],
+["KUSHI NAGAR",38252,25474,18128,18128,81819,16524,1377,81853,2754],
+["LALITPUR",10386,6918,4925,4925,22210,3648,304,22228,608],
+["LUCKNOW",6096,4062,2893,2893,13028,4128,344,13050,688],
+["MAHARAJGANJ",18260,12163,8658,8658,39050,9624,802,39080,1604],
+["MAHOBA",6409,4269,3040,3040,13702,2976,248,13716,496],
+["MAINPURI",16970,11303,8045,8045,36293,10080,840,36317,1680],
+["MATHURA",17790,11849,8434,8434,38046,7884,657,38072,1314],
+["MAU",8168,5442,3875,3875,17460,5160,430,17484,860],
+["MEERUT",5070,3381,2410,2410,10828,4848,404,10860,808],
+["MIRZAPUR",21296,14185,10096,10096,45544,10044,837,45576,1674],
+["MORADABAD",9952,6630,4720,4720,21278,6720,560,21300,1120],
+["MUZAFFARNAGAR",5011,3340,2380,2380,10706,4416,368,10730,736],
+["PILIBHIT",18282,12175,8665,8665,39102,6492,541,39120,1082],
+["PRATAPGARH",21938,14614,10403,10403,46913,10608,884,46953,1768],
+["PRAYAGRAJ",31244,20810,14812,14812,66819,13452,1121,66865,2242],
+["RAE BARELI",20373,13573,9663,9663,43561,11916,993,43607,1986],
+["RAMPUR",14687,9782,6962,6962,31411,6192,516,31429,1032],
+["SAHARANPUR",13150,8760,6237,6237,28118,9432,786,28146,1572],
+["SAMBHAL",12111,8067,5742,5742,25898,4752,396,25918,792],
+["SANT KABEER NAGAR",8355,5567,3964,3964,17861,4956,413,17885,826],
+["SHAHJAHANPUR",34463,22952,16334,16334,73711,13404,1117,73747,2234],
+["SHAMLI",3728,2484,1769,1769,7968,2940,245,7980,490],
+["SHRAVASTI",10930,7280,5182,5182,23374,3744,312,23390,624],
+["SIDDHARTH NAGAR",17819,11869,8449,8449,38104,6984,582,38136,1164],
+["SITAPUR",51139,34057,24236,24236,109386,18108,1509,109430,3018],
+["SONBHADRA",17148,11421,8128,8128,36675,8448,704,36695,1408],
+["SULTANPUR",20463,13630,9701,9701,43762,10980,915,43792,1830],
+["UNNAO",20892,13916,9906,9906,44677,15636,1303,44713,2606],
+["VARANASI",9374,6245,4447,4447,20043,5700,475,20065,950]
+];
+
+// Build target objects
+const DISTRICTS = TARGET_ROWS.map((r,i)=>{
+  const t={};
+  TARGET_COL_ORDER.forEach((k,j)=>{ t[k]=r[j+1]; });
+  const total = TITLES.reduce((s,tt)=>s+t[tt.key],0);
+  return { sn:i+1, name:r[0], target:t, targetTotal:total };
+});
+
+/* =================== Matching helpers =================== */
+const normDist = s => String(s||"").toUpperCase().replace(/[^A-Z]/g,"");
+const normTitle = s => String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+
+// District alias map: normalized variant -> canonical (target) name
+const DIST_ALIAS = {
+  "ALLAHABAD":"PRAYAGRAJ",
+  "FAIZABAD":"AYODHYA",
+  "SANTRAVIDASNAGAR":"BHADOHI","SANTRAVIDASNAGARBHADOHI":"BHADOHI","SRNBHADOHI":"BHADOHI",
+  "SANTKABIRNAGAR":"SANT KABEER NAGAR","SANTKABEERNAGAR":"SANT KABEER NAGAR",
+  "BADAUN":"BUDAUN",
+  "LAKHIMPURKHERI":"KHERI","LAKHIMPUR":"KHERI",
+  "CSMNAGAR":"AMETHI","CHHATRAPATISHAHUJIMAHARAJNAGAR":"AMETHI","CHATRAPATISAHUJIMAHARAJNAGAR":"AMETHI",
+  "SHRAWASTI":"SHRAVASTI",
+  "MAHRAJGANJ":"MAHARAJGANJ","MAHARAJGANG":"MAHARAJGANJ",
+  "BAGPAT":"BAGHPAT",
+  "GAUTAMBUDDHNAGAR":"GAUTAM BUDDHA NAGAR","GBNAGAR":"GAUTAM BUDDHA NAGAR","NOIDA":"GAUTAM BUDDHA NAGAR","GAUTAMBUDHNAGAR":"GAUTAM BUDDHA NAGAR",
+  "JYOTIBAPHULENAGAR":"AMROHA","JPNAGAR":"AMROHA",
+  "PRABUDDHNAGAR":"SHAMLI",
+  "RAMABAINAGAR":"KANPUR DEHAT","RAMABAINAGAR":"KANPUR DEHAT",
+  "KANSHIRAMNAGAR":"KASGANJ",
+  "SIDDHARTHANAGAR":"SIDDHARTH NAGAR",
+  "RAEBARELLY":"RAE BARELI","RAYBARELI":"RAE BARELI","RAEBARELI":"RAE BARELI",
+  "KUSHINAGAR":"KUSHI NAGAR"
+};
+
+// Title alias map: normalized header -> canonical key
+const TITLE_ALIAS = {
+  "chahak1":"c1","chahak01":"c1","chahaki":"c1","chahak1balvatika1":"c1","balvatika1":"c1","bv1":"c1",
+  "chahak2":"c2","chahak02":"c2","chahakii":"c2","balvatika2":"c2","bv2":"c2",
+  "chahak3":"c3","chahak03":"c3","chahakiii":"c3","balvatika3":"c3","bv3":"c3",
+  "kadam":"kadam","kadambook":"kadam",
+  "kalankur":"kalankur","kalanker":"kalankur","kalankoor":"kalankur",
+  "bigbooks":"bb","bigbook":"bb","big":"bb","bigbk":"bb",
+  "tg":"tg","teacherguide":"tg","teachersguide":"tg","teacherguidebook":"tg","guide":"tg","balvatikahastpustika":"tg","balvatikahastpustica":"tg","hastpustika":"tg","balvatikahastapustika":"tg",
+  "hpc":"hpc","holisticprogresscard":"hpc","progresscard":"hpc","holisticprogresscardhpc":"hpc",
+  "talika":"talika","talikabook":"talika","taalika":"talika","nipuntalika":"talika","nipuntaalika":"talika"
+};
+
+function lev(a,b){
+  if(a===b) return 0;
+  const m=a.length,n=b.length;
+  if(!m) return n; if(!n) return m;
+  let prev=Array(n+1), cur=Array(n+1);
+  for(let j=0;j<=n;j++) prev[j]=j;
+  for(let i=1;i<=m;i++){
+    cur[0]=i;
+    for(let j=1;j<=n;j++){
+      const cost=a[i-1]===b[j-1]?0:1;
+      cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+cost);
+    }
+    [prev,cur]=[cur,prev];
+  }
+  return prev[n];
+}
+
+const TARGET_NORM = DISTRICTS.map(d=>({norm:normDist(d.name),name:d.name}));
+function matchDistrict(raw){
+  const n=normDist(raw);
+  if(!n) return null;
+  if(DIST_ALIAS[n]) return DIST_ALIAS[n];
+  const exact=TARGET_NORM.find(t=>t.norm===n);
+  if(exact) return exact.name;
+  // contains (handles "kheri" inside "lakhimpurkheri" etc.)
+  let best=null,bestD=Infinity;
+  for(const t of TARGET_NORM){
+    const d=lev(n,t.norm);
+    if(d<bestD){bestD=d;best=t.name;}
+  }
+  const thr=Math.max(2,Math.floor(n.length*0.25));
+  return bestD<=thr ? best : null;
+}
+function matchTitle(raw){
+  const n=normTitle(raw);
+  if(!n) return null;
+  if(TITLE_ALIAS[n]) return TITLE_ALIAS[n];
+  if(n.length<4) return null;            // short tokens (sl, no, qty…) must match exactly
+  // fuzzy only against longer alias keys
+  let best=null,bestD=Infinity;
+  for(const k in TITLE_ALIAS){
+    if(k.length<4) continue;
+    const d=lev(n,k);
+    if(d<bestD){bestD=d;best=TITLE_ALIAS[k];}
+  }
+  return bestD<=2 ? best : null;
+}
+
+/* =================== CSV parsing =================== */
+function parseCSV(text){
+  text=text.replace(/^\uFEFF/,"");
+  const rows=[]; let row=[],field="",q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){field+='"';i++;} else q=false; }
+      else field+=c;
+    } else {
+      if(c==='"') q=true;
+      else if(c===','){ row.push(field); field=""; }
+      else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=""; }
+      else if(c==='\r'){ /* skip */ }
+      else field+=c;
+    }
+  }
+  if(field.length||row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r=>r.some(x=>String(x).trim()!==""));
+}
+const toNum = v => { const n=parseFloat(String(v).replace(/[^0-9.\-]/g,"")); return isNaN(n)?0:Math.round(n); };
+
+/* Given parsed rows, locate header + district column + title columns */
+function ingest(rows){
+  if(rows.length<2) throw new Error("File has no data rows.");
+  const header=rows[0].map(h=>String(h).trim());
+  const dataRows=rows.slice(1);
+
+  // find district column = the column whose values match the most known districts
+  let distCol=-1,bestMatches=-1;
+  for(let c=0;c<header.length;c++){
+    let m=0;
+    for(const r of dataRows){ if(matchDistrict(r[c])) m++; }
+    if(m>bestMatches){ bestMatches=m; distCol=c; }
+  }
+  // Fallback: if no district names were recognised, use the column with the most
+  // non-numeric (text) values, so even fully-unrecognised names are surfaced, not rejected.
+  if(bestMatches<=0){
+    let bestText=-1;
+    for(let c=0;c<header.length;c++){
+      let t=0;
+      for(const r of dataRows){
+        const v=String(r[c]||"").trim();
+        if(v && !/^[\d,.\s-]+$/.test(v)) t++;
+      }
+      if(t>bestText){ bestText=t; distCol=c; }
+    }
+    if(bestText<=0) throw new Error("Could not find a district column. Make sure district names are in the first column and titles are column headers.");
+  }
+
+  // map title columns
+  const colToTitle={};
+  for(let c=0;c<header.length;c++){
+    if(c===distCol) continue;
+    const k=matchTitle(header[c]);
+    if(k && !Object.values(colToTitle).includes(k)) colToTitle[c]=k;
+  }
+  const matchedTitleKeys=Object.values(colToTitle);
+
+  // aggregate received per district
+  const received={};            // canonicalName -> {key:val}
+  const seenDistricts=new Set();
+  const unmatchedDistricts=new Set();
+  for(const r of dataRows){
+    const canon=matchDistrict(r[distCol]);
+    if(!canon){ if(String(r[distCol]||"").trim()) unmatchedDistricts.add(String(r[distCol]).trim()); continue; }
+    seenDistricts.add(canon);
+    if(!received[canon]) received[canon]={};
+    for(const c in colToTitle){
+      const key=colToTitle[c];
+      received[canon][key]=(received[canon][key]||0)+toNum(r[c]);
+    }
+  }
+
+  const unmatchedTitles=header.filter((h,c)=>c!==distCol && !colToTitle[c] && String(h).trim()!=="");
+
+  return {
+    received, seenDistricts,
+    matchedTitleKeys,
+    unmatchedDistricts:[...unmatchedDistricts],
+    unmatchedTitles
+  };
+}
+
+/* =================== State + computation =================== */
+let STATE = null;   // {received, seenDistricts, matchedTitleKeys, ...}
+let sortKey="sn", sortDir=1;
+let activeFilter="all", searchTerm="";
+
+function fmt(n){ return n.toLocaleString("en-IN"); }
+function compact(n){
+  if(n>=1e7) return (n/1e7).toFixed(2).replace(/\.00$/,"")+" Cr";
+  if(n>=1e5) return (n/1e5).toFixed(2).replace(/\.00$/,"")+" L";
+  if(n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,"")+"k";
+  return String(n);
+}
+
+function statusOf(d){
+  if(!STATE) return "awaiting";            // no file loaded yet
+  if(d.recTotal===0) return "notreached";  // absent from file (=0) or reported zero
+  if(d.pct>80) return "reached";           // green
+  if(d.pct>=50) return "partial";          // yellow
+  return "low";                            // red, below 50%
+}
+
+function computeRows(){
+  return DISTRICTS.map(d=>{
+    const rec={}; let recTotal=0;
+    TITLES.forEach(t=>{
+      const v = STATE && STATE.received[d.name] ? (STATE.received[d.name][t.key]||0) : 0;
+      rec[t.key]=v; recTotal+=v;
+    });
+    const pct = d.targetTotal? (recTotal/d.targetTotal*100) : 0;
+    const row={ ...d, rec, recTotal, pct };
+    row.inFile = !!(STATE && STATE.seenDistricts.has(d.name));
+    row.status = statusOf(row);
+    return row;
+  });
+}
+
+/* Colour rule: >80 green · 50–80 yellow · <50 red */
+function pctBand(p){ if(p>80) return "green"; if(p>=50) return "yellow"; return "red"; }
+const BAND = {
+  green:{cls:"band-green", solid:"var(--green)"},
+  yellow:{cls:"band-yellow", solid:"var(--amber)"},
+  red:{cls:"band-red", solid:"var(--red)"}
+};
+function pctColor(p){ return BAND[pctBand(p)].solid; }
+const STATUS_META = {
+  reached:{label:"Above 80%",cls:"st-reached",color:"var(--green)"},
+  partial:{label:"50–80%",cls:"st-partial",color:"var(--amber)"},
+  low:{label:"Below 50%",cls:"st-low",color:"var(--red)"},
+  notreached:{label:"Not reached",cls:"st-stalled",color:"#8E2020"},
+  awaiting:{label:"Awaiting",cls:"st-noreport",color:"var(--ink-faint)"}
+};
+
+/* =================== Render: chips / hero =================== */
+const grandTarget = DISTRICTS.reduce((s,d)=>s+d.targetTotal,0);
+document.getElementById("chipTarget").textContent = compact(grandTarget);
+
+function renderChips(rows){
+  const grandRec = rows.reduce((s,r)=>s+r.recTotal,0);
+  const overall = grandTarget? grandRec/grandTarget*100 : 0;
+  const reported = STATE ? STATE.seenDistricts.size : 0;
+  const notReached = rows.filter(r=>r.status==="notreached").length;
+  const el=document.getElementById("topChips");
+  if(!STATE){
+    el.innerHTML = `
+      <div class="chip"><div class="k">Districts</div><div class="v">75</div></div>
+      <div class="chip"><div class="k">Titles</div><div class="v">9</div></div>
+      <div class="chip"><div class="k">Books targeted</div><div class="v spine">${compact(grandTarget)}</div></div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="chip"><div class="k">Overall fill</div><div class="v spine">${overall.toFixed(1)}%</div></div>
+    <div class="chip"><div class="k">In file</div><div class="v">${reported}<small style="font-size:13px;color:var(--ink-faint)">/75</small></div></div>
+    <div class="chip"><div class="k">Not reached</div><div class="v ${notReached?'red':''}">${notReached}</div></div>`;
+}
+
+function renderHero(rows){
+  const grandRec=rows.reduce((s,r)=>s+r.recTotal,0);
+  const overall=grandTarget?grandRec/grandTarget*100:0;
+  const reached=rows.filter(r=>r.status==="reached").length;
+  const h=document.getElementById("hero");
+  if(!STATE){
+    h.innerHTML=`<p class="hero-lead">No receipt data loaded yet.</p>
+      <div class="hero-big">—</div>
+      <div class="shelf"><div class="shelf-grid">${Array(10).fill("<span></span>").join("")}</div></div>
+      <p class="sub" style="margin-top:12px">Upload officer-reported data to populate the analysis.</p>`;
+    return;
+  }
+  h.innerHTML=`
+    <div class="hero-top">
+      <div>
+        <p class="hero-lead">Of ${fmt(grandTarget)} books targeted across the state</p>
+        <div class="hero-big">${overall.toFixed(1)}<small>% received</small></div>
+      </div>
+      <div class="hero-counts">
+        <div><b>${fmt(grandRec)}</b> books confirmed received</div>
+        <div><b>${reached}</b> of 75 districts above 80%</div>
+        <div><b>${fmt(Math.max(0,grandTarget-grandRec))}</b> books still pending</div>
+      </div>
+    </div>
+    <div class="shelf">
+      <div class="shelf-fill" style="width:${Math.min(100,overall)}%"></div>
+      <div class="shelf-grid">${Array(10).fill("<span></span>").join("")}</div>
+    </div>`;
+}
+
+/* =================== Render: table =================== */
+function renderTable(rows){
+  const wrap=document.getElementById("tableWrap");
+
+  let view=rows.slice();
+  if(searchTerm){ const s=searchTerm.toLowerCase(); view=view.filter(r=>r.name.toLowerCase().includes(s)); }
+  if(activeFilter!=="all") view=view.filter(r=>r.status===activeFilter);
+
+  view.sort((a,b)=>{
+    let av,bv;
+    if(sortKey==="sn"){av=a.sn;bv=b.sn;}
+    else if(sortKey==="name"){av=a.name;bv=b.name;}
+    else if(sortKey==="over"){av=a.pct;bv=b.pct;}
+    else { // a title key
+      const at=a.target[sortKey], bt=b.target[sortKey];
+      av=at?a.rec[sortKey]/at:0; bv=bt?b.rec[sortKey]/bt:0;
+    }
+    if(av<bv) return -1*sortDir; if(av>bv) return 1*sortDir; return 0;
+  });
+
+  const arrow=k=> sortKey===k ? (sortDir>0?"▲":"▼") : "";
+  const cls=k=> sortKey===k ? "sorted":"";
+
+  let head=`<tr>
+    <th class="col-dist ${cls('name')}" data-sort="name">District<span class="arrow">${arrow('name')||arrow('sn')}</span></th>
+    <th class="col-over ${cls('over')}" data-sort="over">Overall<span class="arrow">${arrow('over')}</span></th>`;
+  TITLES.forEach(t=>{ head+=`<th class="${cls(t.key)}" data-sort="${t.key}" title="${t.label}">${t.short||t.label}<span class="arrow">${arrow(t.key)}</span></th>`; });
+  head+=`<th>Status</th></tr>`;
+
+  let body="";
+  const loaded = !!STATE;
+  for(const r of view){
+    const hasData = loaded;
+    const meta=STATUS_META[r.status];
+    const overCol = hasData ? pctColor(r.pct) : "var(--ink-faint)";
+    let cells="";
+    TITLES.forEach(t=>{
+      const tgt=r.target[t.key];
+      if(!hasData){
+        cells+=`<td class="col-title"><span class="hcell empty">—</span></td>`;
+      } else {
+        const rv=r.rec[t.key];
+        const p = tgt? rv/tgt*100 : 0;
+        const bandCls = (rv===0) ? "band-zero" : BAND[pctBand(p)].cls;
+        const disp = p>999?"999+":Math.round(p);
+        cells+=`<td class="col-title"><span class="hcell ${bandCls}" title="${t.label}: ${fmt(rv)} of ${fmt(tgt)}">${disp}%<span class="hsub">${fmt(rv)}/${fmt(tgt)}</span></span></td>`;
+      }
+    });
+    const overInner = hasData
+      ? `<div class="bar"><i style="width:${Math.min(100,r.pct)}%;background:${overCol}"></i></div><span class="overpct">${r.pct>999?"999+":r.pct.toFixed(0)}%</span>`
+      : `<div class="bar"></div><span class="overpct" style="color:var(--ink-faint)">—</span>`;
+    body+=`<tr class="${loaded?'clk':''}" data-sn="${r.sn}">
+      <td class="col-dist"><span class="sn">${String(r.sn).padStart(2,'0')}</span>${r.name}${loaded?'<span class="dchev">view ›</span>':''}</td>
+      <td><div class="overcell">${overInner}</div></td>
+      ${cells}
+      <td><span class="badge-st ${meta.cls}">${meta.label}</span></td>
+    </tr>`;
+  }
+
+  if(!view.length){
+    wrap.innerHTML=`<div class="empty-state">No districts match this filter.</div>`;
+    return;
+  }
+  wrap.innerHTML=`<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+  wrap.querySelectorAll("th[data-sort]").forEach(th=>{
+    th.addEventListener("click",()=>{
+      const k=th.getAttribute("data-sort");
+      if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir = (k==="name")?1:-1; }
+      renderTable(computeRows());
+    });
+  });
+  if(loaded){
+    wrap.querySelectorAll("tbody tr.clk").forEach(tr=>{
+      tr.addEventListener("click",()=>openDetail(+tr.getAttribute("data-sn")));
+    });
+  }
+}
+
+/* =================== Detail drawer =================== */
+function openDetail(sn){
+  if(!STATE) return;
+  const r = computeRows().find(x=>x.sn===sn);
+  if(!r) return;
+  const meta=STATUS_META[r.status];
+  document.getElementById("drName").textContent=r.name;
+  const pctEl=document.getElementById("drPct");
+  pctEl.textContent=(r.pct>999?"999+":r.pct.toFixed(1))+"%";
+  pctEl.style.color=meta.color;
+  document.getElementById("drSub").innerHTML=
+    `${fmt(r.recTotal)} of ${fmt(r.targetTotal)} books · <span style="color:${meta.color}">${meta.label}</span>`;
+
+  let rows="";
+  TITLES.forEach(t=>{
+    const tgt=r.target[t.key], rv=r.rec[t.key];
+    const p = tgt? rv/tgt*100 : 0;
+    const band = (rv===0)?{cls:"band-zero",solid:"var(--red)"}:{cls:BAND[pctBand(p)].cls,solid:pctColor(p)};
+    const disp=p>999?"999+":Math.round(p);
+    rows+=`<tr>
+      <td>${t.label}</td>
+      <td>${fmt(tgt)}</td>
+      <td>${fmt(rv)}</td>
+      <td><span class="dr-bar"><i style="width:${Math.min(100,p)}%;background:${band.solid}"></i></span></td>
+      <td><span class="dr-chip ${band.cls}">${disp}%</span></td>
+    </tr>`;
+  });
+  const oband=(r.recTotal===0)?"band-zero":BAND[pctBand(r.pct)].cls;
+  rows+=`<tr class="tot">
+    <td>Total</td><td>${fmt(r.targetTotal)}</td><td>${fmt(r.recTotal)}</td>
+    <td></td><td><span class="dr-chip ${oband}">${r.pct>999?"999+":r.pct.toFixed(0)}%</span></td></tr>`;
+
+  const note = r.inFile
+    ? ""
+    : `<p class="dr-note">This district has no row in the uploaded file yet, so every title is counted as 0 received.</p>`;
+
+  document.getElementById("drBody").innerHTML=
+    `<table class="dr-table">
+      <tr><th>Title</th><th>Target</th><th>Received</th><th>Progress</th><th>%</th></tr>
+      ${rows}
+    </table>${note}`;
+
+  document.getElementById("drawer").classList.add("open");
+  document.getElementById("drawerBackdrop").classList.add("open");
+}
+function closeDetail(){
+  document.getElementById("drawer").classList.remove("open");
+  document.getElementById("drawerBackdrop").classList.remove("open");
+}
+
+/* =================== Render: analysis =================== */
+function renderStats(rows){
+  const g=document.getElementById("statgrid");
+  if(!STATE){ g.innerHTML=""; return; }
+  const counts={reached:0,partial:0,low:0,notreached:0};
+  rows.forEach(r=>{ if(counts[r.status]!==undefined) counts[r.status]++; });
+  const absent = rows.filter(r=>!r.inFile).length;
+  const cards=[
+    {lbl:"Above 80%",color:"var(--green)",num:counts.reached,meta:"on track / complete"},
+    {lbl:"50–80%",color:"var(--amber)",num:counts.partial,meta:"partially delivered"},
+    {lbl:"Below 50%",color:"var(--red)",num:counts.low,meta:"received, but well short"},
+    {lbl:"Not reached (0%)",color:"#8E2020",num:counts.notreached,meta:`${absent} not yet in file`}
+  ];
+  g.innerHTML=cards.map(c=>`
+    <div class="stat">
+      <div class="lbl"><span class="dot" style="background:${c.color}"></span>${c.lbl}</div>
+      <div class="num">${c.num}</div>
+      <div class="meta">${c.meta}</div>
+    </div>`).join("");
+}
+
+function renderTitleBars(rows){
+  const box=document.getElementById("titleBars");
+  if(!STATE){ box.innerHTML=`<p class="sub">Load data to view fill rates.</p>`; return; }
+  box.innerHTML=TITLES.map(t=>{
+    const tgt=DISTRICTS.reduce((s,d)=>s+d.target[t.key],0);
+    const rec=rows.reduce((s,r)=>s+r.rec[t.key],0);
+    const p=tgt?rec/tgt*100:0;
+    const col=pctColor(p,true);
+    return `<div class="hbar">
+      <div class="nm">${t.label}</div>
+      <div class="track"><i style="width:${Math.min(100,p)}%;background:${col}"></i></div>
+      <div class="pc">${p.toFixed(0)}%</div>
+    </div>`;
+  }).join("");
+}
+
+function renderDonut(rows){
+  const box=document.getElementById("donut");
+  const leg=document.getElementById("donutLegend");
+  if(!STATE){ box.innerHTML=""; leg.innerHTML=`<p class="sub">Load data to view status split.</p>`; return; }
+  const order=["reached","partial","low","notreached"];
+  const counts={}; order.forEach(k=>counts[k]=0); rows.forEach(r=>{ if(counts[r.status]!==undefined) counts[r.status]++; });
+  const total=rows.length;
+  const R=58,C=2*Math.PI*R, cx=70,cy=70,sw=22;
+  let offset=0, segs="";
+  order.forEach(k=>{
+    const frac=counts[k]/total;
+    const len=frac*C;
+    if(len>0){
+      segs+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${STATUS_META[k].color}" stroke-width="${sw}"
+        stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    }
+    offset+=len;
+  });
+  box.innerHTML=`<svg width="140" height="140" viewBox="0 0 140 140">
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#EDEBE4" stroke-width="${sw}"/>
+    ${segs}
+    <text x="${cx}" y="${cy-2}" text-anchor="middle" font-family="var(--mono)" font-size="26" font-weight="600" fill="var(--ink)">${total}</text>
+    <text x="${cx}" y="${cy+16}" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--ink-soft)">districts</text>
+  </svg>`;
+  leg.innerHTML=order.map(k=>`<div class="li"><span class="sw" style="background:${STATUS_META[k].color}"></span>${STATUS_META[k].label}<span class="ct">${counts[k]}</span></div>`).join("");
+}
+
+function renderDistBars(rows){
+  const box=document.getElementById("distBars");
+  if(!STATE){ box.innerHTML=`<p class="sub">Load data to rank districts.</p>`; return; }
+  const sorted=rows.slice().sort((a,b)=>a.pct-b.pct);
+  box.innerHTML=sorted.map(r=>{
+    const col=pctColor(r.pct,true);
+    const tag=r.inFile?"":' · not in file';
+    return `<div class="hbar">
+      <div class="nm">${r.name}</div>
+      <div class="track"><i style="width:${Math.min(100,r.pct)}%;background:${col}"></i></div>
+      <div class="pc" title="${r.pct.toFixed(1)}%${tag}">${r.pct.toFixed(0)}%</div></div>`;
+  }).join("");
+}
+
+/* =================== Render: gaps =================== */
+function renderGaps(rows){
+  const body=document.getElementById("gapsBody");
+  const badge=document.getElementById("gapBadge");
+  if(!STATE){
+    body.innerHTML=`<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div>Upload receipt data to identify districts where material has not reached.</div></div>`;
+    badge.classList.add("hidden");
+    return;
+  }
+  const notreached=rows.filter(r=>r.status==="notreached");
+  const low=rows.filter(r=>r.status==="low");
+  const absentCount=notreached.filter(r=>!r.inFile).length;
+  if(notreached.length>0){ badge.textContent=notreached.length; badge.classList.remove("hidden"); }
+  else badge.classList.add("hidden");
+
+  function missingTitles(r){
+    return TITLES.filter(t=>r.target[t.key]>0 && r.rec[t.key]<=0).map(t=>t.short||t.label);
+  }
+  function card(r,cls,meta,showMiss){
+    const missHtml = showMiss
+      ? `<div class="miss">${missingTitles(r).slice(0,9).map(m=>`<b>${m}</b>`).join("")}</div>`
+      : "";
+    return `<div class="gapcard ${cls}">
+      <div class="gd">${r.name}</div>
+      <div class="gm">${meta}</div>
+      ${missHtml}</div>`;
+  }
+
+  let html="";
+
+  html+=`<div class="gapsec">
+    <div class="gaphead">
+      <span class="ic" style="background:var(--red)">!</span>
+      <h3>Not reached <span style="font-weight:400">(0% received)</span></h3><span class="cnt">${notreached.length} district${notreached.length!==1?"s":""}</span>
+    </div>
+    <p class="sub" style="margin:-6px 0 12px">${absentCount} of these have no row in the uploaded file (treated as 0); ${notreached.length-absentCount} reported zero across all titles.</p>`;
+  html+= notreached.length
+    ? `<div class="gapgrid">${notreached.map(r=>card(r,"red", r.inFile?"Reported — all titles at zero":"No row in file yet — counted as 0", false)).join("")}</div>`
+    : `<div class="gap-none">✓ Every district has received at least some material.</div>`;
+  html+=`</div>`;
+
+  html+=`<div class="gapsec">
+    <div class="gaphead">
+      <span class="ic" style="background:var(--red)">▲</span>
+      <h3>Below 50% <span style="font-weight:400">(red)</span></h3><span class="cnt">${low.length} district${low.length!==1?"s":""}</span>
+    </div>
+    <p class="sub" style="margin:-6px 0 12px">Material has started arriving but is under half the target — tagged titles below are still at zero.</p>`;
+  html+= low.length
+    ? `<div class="gapgrid">${low.map(r=>card(r,"red",`${r.pct.toFixed(0)}% · ${fmt(r.recTotal)} of ${fmt(r.targetTotal)} books`, true)).join("")}</div>`
+    : `<div class="gap-none">✓ No district is between 1% and 50%.</div>`;
+  html+=`</div>`;
+
+  body.innerHTML=html;
+}
+
+/* =================== Master render =================== */
+function renderAll(){
+  const rows=computeRows();
+  renderChips(rows);
+  renderTable(rows);
+  renderHero(rows);
+  renderStats(rows);
+  renderTitleBars(rows);
+  renderDonut(rows);
+  renderDistBars(rows);
+  renderGaps(rows);
+}
+
+/* =================== Match report =================== */
+function showMatchReport(res){
+  const el=document.getElementById("matchReport");
+  el.classList.add("show");
+  const matchedD=res.seenDistricts.size;
+  const matchedT=res.matchedTitleKeys.length;
+  let html=`<div class="mr-row">
+    <div class="mr-stat"><b class="${matchedD>=70?'mr-good':matchedD>=40?'mr-warn':'mr-bad'}">${matchedD}/75</b><span>districts matched</span></div>
+    <div class="mr-stat"><b class="${matchedT>=9?'mr-good':matchedT>=5?'mr-warn':'mr-bad'}">${matchedT}/9</b><span>title columns matched</span></div>
+    <div class="mr-stat"><span>${75-matchedD} district${75-matchedD!==1?"s":""} not in file — counted as 0 received</span></div>
+  </div>`;
+  if(res.unmatchedTitles.length){
+    html+=`<div class="mr-unmatched">Unmatched columns (ignored): <span class="tagrow">${res.unmatchedTitles.map(t=>`<span class="tag">${t}</span>`).join("")}</span></div>`;
+  }
+  if(res.unmatchedDistricts.length){
+    html+=`<div class="mr-unmatched">Unrecognised district labels (not counted): <span class="tagrow">${res.unmatchedDistricts.slice(0,20).map(t=>`<span class="tag">${t}</span>`).join("")}${res.unmatchedDistricts.length>20?`<span class="tag">+${res.unmatchedDistricts.length-20} more</span>`:""}</span></div>`;
+  }
+  el.innerHTML=html;
+}
+
+/* =================== File handling =================== */
+function loadText(text){
+  try{
+    const rows=parseCSV(text);
+    const res=ingest(rows);
+    STATE=res;
+    showMatchReport(res);
+    renderAll();
+  }catch(err){
+    const el=document.getElementById("matchReport");
+    el.classList.add("show");
+    el.innerHTML=`<div class="mr-stat"><b class="mr-bad">Could not read file</b><span>${err.message} Check that districts are in rows and titles in columns.</span></div>`;
+  }
+}
+function handleFile(file){
+  const r=new FileReader();
+  r.onload=e=>loadText(e.target.result);
+  r.onerror=()=>{ document.getElementById("matchReport").classList.add("show");
+    document.getElementById("matchReport").innerHTML=`<div class="mr-stat"><b class="mr-bad">Read error</b><span>Could not open that file.</span></div>`; };
+  r.readAsText(file);
+}
+
+/* =================== Demo data =================== */
+function loadDemo(){
+  // deterministic pseudo-random
+  let seed=42; const rnd=()=>{ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; };
+  const received={}; const seen=new Set();
+  DISTRICTS.forEach((d,i)=>{
+    const roll=rnd();
+    if(roll<0.08){ return; }                 // ~no report
+    seen.add(d.name);
+    received[d.name]={};
+    let base;
+    if(roll<0.16) base=0;                    // nothing received
+    else if(roll<0.30) base=0.10+rnd()*0.13; // critical
+    else if(roll<0.62) base=0.40+rnd()*0.45; // partial
+    else base=0.90+rnd()*0.18;               // reached / over
+    TITLES.forEach(t=>{
+      const noise=base*(0.85+rnd()*0.3);
+      received[d.name][t.key]=Math.max(0,Math.round(d.target[t.key]*Math.min(noise, base===0?0:1.15)));
+    });
+  });
+  STATE={ received, seenDistricts:seen, matchedTitleKeys:TITLES.map(t=>t.key),
+          unmatchedDistricts:[], unmatchedTitles:[] };
+  const el=document.getElementById("matchReport");
+  el.classList.add("show");
+  el.innerHTML=`<div class="mr-row"><div class="mr-stat"><b class="mr-warn">Demo data</b><span>Synthetic figures for preview only — upload your file to replace.</span></div></div>`;
+  renderAll();
+}
+
+/* =================== Export =================== */
+function exportCSV(){
+  const rows=computeRows();
+  const loaded=!!STATE;
+  const head=["Sl. No.","District","In File","Status","Overall Target","Overall Received","Overall %"];
+  TITLES.forEach(t=>{ head.push(`${t.label} Target`,`${t.label} Received`,`${t.label} %`); });
+  const lines=[head.join(",")];
+  rows.forEach(r=>{
+    const cells=[r.sn, `"${r.name}"`, loaded?(r.inFile?"Yes":"No"):"", STATUS_META[r.status].label, r.targetTotal,
+                 loaded?r.recTotal:"", loaded?r.pct.toFixed(1):""];
+    TITLES.forEach(t=>{
+      const tgt=r.target[t.key];
+      cells.push(tgt, loaded?r.rec[t.key]:"", loaded&&tgt?(r.rec[t.key]/tgt*100).toFixed(1):"");
+    });
+    lines.push(cells.join(","));
+  });
+  const blob=new Blob([lines.join("\n")],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="kitab_vitran_reconciliation.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* =================== Wiring =================== */
+const fileInput=document.getElementById("fileInput");
+const drop=document.getElementById("drop");
+document.getElementById("browseBtn").addEventListener("click",e=>{e.stopPropagation();fileInput.click();});
+drop.addEventListener("click",()=>fileInput.click());
+drop.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();fileInput.click();} });
+fileInput.addEventListener("change",e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>{ const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+document.getElementById("demoBtn").addEventListener("click",e=>{e.stopPropagation();loadDemo();});
+document.getElementById("exportBtn").addEventListener("click",exportCSV);
+document.getElementById("drClose").addEventListener("click",closeDetail);
+document.getElementById("drawerBackdrop").addEventListener("click",closeDetail);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeDetail(); });
+
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("panel-"+tab.dataset.tab).classList.add("active");
+  });
+});
+document.getElementById("searchBox").addEventListener("input",e=>{ searchTerm=e.target.value.trim(); renderTable(computeRows()); });
+document.getElementById("filterChips").addEventListener("click",e=>{
+  const b=e.target.closest(".fchip"); if(!b) return;
+  document.querySelectorAll(".fchip").forEach(c=>c.classList.remove("active"));
+  b.classList.add("active"); activeFilter=b.dataset.f; renderTable(computeRows());
+});
+
+renderAll();
+</script>
+</body>
+</html>
